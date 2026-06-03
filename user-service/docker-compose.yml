@@ -1,0 +1,20 @@
+services:
+
+  postgres-user:
+    image: postgres:17
+
+    container_name: postgres-user
+
+    environment:
+      POSTGRES_DB: users_db
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - postgres_user_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_user_data:

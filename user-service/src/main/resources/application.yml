@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: user-service
+  datasource:
+    url: jdbc:postgresql://localhost:5433/users_db
+    username: root
+    password: root
+  liquibase:
+    enabled: true
+    change-log: classpath:db/master.xml
+
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+
+jwt:
+  secret: f/zASDH8erhhe4BY59R+c6HOeLl/4uOHyHVf9CvPrpcF5eoS2XXvVA1ElY+3j+TqfWJX+Mdrx73BAfXtigFRdw==
+  expiration: 3600
+server:
+  port: 8081
