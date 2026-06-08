@@ -8,6 +8,11 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:db/master.xml
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 
   jpa:
@@ -17,6 +22,6 @@ spring:
 
 jwt:
   secret: f/zASDH8erhhe4BY59R+c6HOeLl/4uOHyHVf9CvPrpcF5eoS2XXvVA1ElY+3j+TqfWJX+Mdrx73BAfXtigFRdw==
-  expiration: 3600
+  expiration: 3600000
 server:
   port: 8081
