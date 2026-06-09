@@ -19,6 +19,7 @@
     <module>notification-service</module>
     <module>event-service</module>
     <module>booking-service</module>
+    <module>api-gateway</module>
   </modules>
 
   <dependencies>

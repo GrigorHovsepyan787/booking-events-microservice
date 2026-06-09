@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: event-service
+  datasource:
+    url: jdbc:postgresql://localhost:5435/events_db
+    username: root
+    password: root
+  liquibase:
+    enabled: true
+    change-log: classpath:db/master.xml
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: notifications-consumer-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
+jwt:
+  secret: f/zASDH8erhhe4BY59R+c6HOeLl/4uOHyHVf9CvPrpcF5eoS2XXvVA1ElY+3j+TqfWJX+Mdrx73BAfXtigFRdw==
+
+server:
+  port: 8083

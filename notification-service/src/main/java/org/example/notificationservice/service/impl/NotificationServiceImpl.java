@@ -24,7 +24,6 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public List<SimpleNotificationDto> findAllByUserId(Long userId) {
-        System.out.println("user id is" + userId);
         return notificationRepository.findByUserId(userId).stream().map(notificationMapper::toSimpleDto).toList();
     }
 
@@ -33,20 +32,22 @@ public class NotificationServiceImpl implements NotificationService {
     public NotificationDto markAsRead(Long id, Long userId) {
         Notification notification = notificationRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         notification.setRead(true);
-        notificationRepository.save(notification);
-        if(notification.getUserId().equals(userId)){
-        return notificationMapper.toDto(notification);
-        }
-        throw new AccessDeniedException("Not allowed to mark as read");
+        validateUser(notification, userId);
+        Notification saved = notificationRepository.save(notification);
+        return notificationMapper.toDto(saved);
     }
 
     @Override
     @Transactional
     public void delete(Long id, Long userId) {
         Notification notification = notificationRepository.findById(id).orElseThrow(EntityNotFoundException::new);
-        if(notification.getUserId().equals(userId)) {
-            notificationRepository.deleteById(id);
+        validateUser(notification, userId);
+        notificationRepository.deleteById(id);
+    }
+
+    private void validateUser(Notification notification, Long userId) {
+        if (!notification.getUserId().equals(userId)) {
+            throw new AccessDeniedException("Not allowed for actions");
         }
-        throw new AccessDeniedException("Not allowed to delete");
     }
 }

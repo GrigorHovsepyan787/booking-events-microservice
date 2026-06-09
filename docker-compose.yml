@@ -42,6 +42,7 @@ services:
       KAFKA_NUM_PARTITIONS: 1
     volumes:
       - kafka_data:/var/lib/kafka/data
+
   postgres-notification:
     image: postgres:17
     environment:
@@ -50,6 +51,7 @@ services:
       POSTGRES_PASSWORD: root
     ports:
       - "5434:5432"
+
   postgres-events:
     image: postgres:17
     environment:
@@ -58,6 +60,7 @@ services:
       POSTGRES_PASSWORD: root
     ports:
       - "5435:5432"
+
   postgres-bookings:
     image: postgres:17
     environment:
