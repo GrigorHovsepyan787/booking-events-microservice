@@ -102,7 +102,7 @@ class BookingServiceImplTest {
         assertThat(result).isNotNull();
         assertThat(result.getTotalElements()).isEqualTo(1);
         assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0).getId()).isEqualTo(1L);
+        assertThat(result.getContent().getFirst().getId()).isEqualTo(1L);
 
         verify(bookingRepository).findAllByUserId(10L, pageable);
         verify(bookingMapper).toDto(testBooking);

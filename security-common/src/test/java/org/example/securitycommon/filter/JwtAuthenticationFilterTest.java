@@ -15,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.IOException;
@@ -105,11 +106,12 @@ class JwtAuthenticationFilterTest {
         assertTrue(authentication.isAuthenticated());
 
         JwtPrincipal principal = (JwtPrincipal) authentication.getPrincipal();
+        assert principal != null;
         assertEquals(100L, principal.getUserId());
         assertEquals(username, principal.getUsername());
 
         var authorities = authentication.getAuthorities().stream()
-                .map(granted -> granted.getAuthority())
+                .map(GrantedAuthority::getAuthority)
                 .toList();
         assertTrue(authorities.contains("ROLE_USER"));
         assertTrue(authorities.contains("ROLE_ADMIN"));

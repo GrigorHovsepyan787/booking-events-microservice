@@ -3,7 +3,6 @@ package org.example.userservice.service.security;
 import org.example.userservice.entity.User;
 import org.example.userservice.entity.UserType;
 import org.example.userservice.repository.UserRepository;
-import org.example.userservice.service.security.UserDetailsServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

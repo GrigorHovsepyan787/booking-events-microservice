@@ -18,13 +18,13 @@ class JwtParserTests {
 
     private JwtParser jwtParser;
 
-    private final String base64Secret = "YTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=";
     private String validToken;
     private final String expectedUsername = "testUser";
 
     @BeforeEach
     void setUp() {
         jwtParser = new JwtParser();
+        String base64Secret = "YTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=";
         ReflectionTestUtils.setField(jwtParser, "SECRET_KEY", base64Secret);
 
         byte[] keyBytes = Decoders.BASE64.decode(base64Secret);
@@ -64,7 +64,7 @@ class JwtParserTests {
         Number userId = jwtParser.extractClaim(validToken, claims -> claims.get("userId", Number.class));
 
         assertNotNull(roles);
-        assertEquals("ROLE_USER", roles.get(0));
+        assertEquals("ROLE_USER", roles.getFirst());
         assertEquals(42, userId.intValue());
     }
 

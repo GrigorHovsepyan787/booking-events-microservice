@@ -2,7 +2,6 @@ package org.example.eventservice.kafka.consumer;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
-import org.apache.kafka.common.header.internals.RecordHeader;
 import org.example.common.correlation.CorrelationConstants;
 import org.example.common.kafka.event.BookingCreatedEvent;
 import org.example.common.kafka.event.BookingDeletedEvent;
@@ -14,15 +13,21 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.MDC;
 
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class EventConsumerTest {
@@ -139,9 +144,7 @@ class EventConsumerTest {
                 .when(eventService).reserveSeat(any(BookingCreatedEvent.class));
 
         // Act & Assert
-        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
-            eventConsumer.handleBookingCreated(bookingCreatedRecord);
-        });
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> eventConsumer.handleBookingCreated(bookingCreatedRecord));
 
         assertEquals("Service error", thrown.getMessage());
         verify(eventService, times(1)).reserveSeat(event);
@@ -163,9 +166,7 @@ class EventConsumerTest {
                 .when(eventRepository).deleteAllByUserId(any(Long.class));
 
         // Act & Assert
-        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
-            eventConsumer.handleUserDeleted(userDeletedRecord);
-        });
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> eventConsumer.handleUserDeleted(userDeletedRecord));
 
         assertEquals("Repository error", thrown.getMessage());
         verify(eventRepository, times(1)).deleteAllByUserId(1L);
@@ -182,9 +183,7 @@ class EventConsumerTest {
         when(headers.lastHeader(CorrelationConstants.CORRELATION_ID)).thenReturn(null);
 
         // Act & Assert - should not throw NullPointerException
-        assertDoesNotThrow(() -> {
-            eventConsumer.handleBookingCreated(bookingCreatedRecord);
-        });
+        assertDoesNotThrow(() -> eventConsumer.handleBookingCreated(bookingCreatedRecord));
 
         verify(eventService, never()).reserveSeat(any(BookingCreatedEvent.class));
         assertNull(MDC.get(CorrelationConstants.MDC_KEY), "MDC should be cleared after processing");
@@ -198,9 +197,7 @@ class EventConsumerTest {
         when(headers.lastHeader(CorrelationConstants.CORRELATION_ID)).thenReturn(null);
 
         // Act & Assert - should not throw NullPointerException
-        assertDoesNotThrow(() -> {
-            eventConsumer.handleBookingDeleted(bookingDeletedRecord);
-        });
+        assertDoesNotThrow(() -> eventConsumer.handleBookingDeleted(bookingDeletedRecord));
 
         verify(eventService, never()).cancelReservation(any(Long.class));
         assertNull(MDC.get(CorrelationConstants.MDC_KEY), "MDC should be cleared after processing");
@@ -261,9 +258,7 @@ class EventConsumerTest {
                 .when(eventService).reserveSeat(any(BookingCreatedEvent.class));
 
         // Act & Assert
-        assertThrows(RuntimeException.class, () -> {
-            eventConsumer.handleBookingCreated(bookingCreatedRecord);
-        });
+        assertThrows(RuntimeException.class, () -> eventConsumer.handleBookingCreated(bookingCreatedRecord));
 
         // Verify MDC is cleared even after exception
         assertNull(MDC.get(CorrelationConstants.MDC_KEY), "MDC should be cleared in finally block even when exception occurs");

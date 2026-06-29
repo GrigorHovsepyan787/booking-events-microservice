@@ -87,7 +87,7 @@ class NotificationRepositoryTest {
 
         assertTrue(result.getContent().stream().allMatch(n -> n.getUserId().equals(USER_ID_1)));
 
-        assertEquals("john_doe", result.getContent().get(0).getUsername());
+        assertEquals("john_doe", result.getContent().getFirst().getUsername());
     }
 
     @Test
@@ -112,7 +112,7 @@ class NotificationRepositoryTest {
         Page<Notification> remainingUser2 = notificationRepository.findByUserId(USER_ID_2, Pageable.unpaged());
         assertEquals(1, remainingUser2.getTotalElements());
 
-        Notification remainingNotification = remainingUser2.getContent().get(0);
+        Notification remainingNotification = remainingUser2.getContent().getFirst();
         assertEquals("alice_smith", remainingNotification.getUsername());
         assertEquals(NotificationType.EVENT_CREATED, remainingNotification.getType());
     }

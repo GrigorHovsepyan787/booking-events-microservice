@@ -11,14 +11,13 @@ import org.example.eventservice.entity.Event;
 import org.example.eventservice.kafka.producer.EventProducer;
 import org.example.eventservice.mapper.EventMapper;
 import org.example.eventservice.repository.EventRepository;
-import org.example.eventservice.service.EventService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.InOrder;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -33,7 +32,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class EventServiceImplTest {
@@ -107,7 +112,7 @@ class EventServiceImplTest {
         assertThat(result).isNotNull();
         assertThat(result.getTotalElements()).isEqualTo(1);
         assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0).getTitle()).isEqualTo("Test Event");
+        assertThat(result.getContent().getFirst().getTitle()).isEqualTo("Test Event");
 
         verify(eventRepository).findAll(pageable);
         verify(eventMapper).toDto(testEvent);
@@ -145,7 +150,7 @@ class EventServiceImplTest {
         assertThat(result).isNotNull();
         assertThat(result.getTotalElements()).isEqualTo(1);
         assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0).getTitle()).isEqualTo("Test Event");
+        assertThat(result.getContent().getFirst().getTitle()).isEqualTo("Test Event");
 
         verify(eventRepository).findByUserId(10L, pageable);
         verify(eventMapper).toDto(testEvent);
