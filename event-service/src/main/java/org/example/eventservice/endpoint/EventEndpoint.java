@@ -1,10 +1,16 @@
 package org.example.eventservice.endpoint;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.eventservice.dto.CreateEventDto;
-import org.example.eventservice.dto.EventDto;
+import org.example.eventservice.dto.response.EventResponse;
+import org.example.eventservice.dto.request.CreateEventRequest;
 import org.example.eventservice.service.EventService;
-import org.example.eventservice.service.security.JwtPrincipal;
+import org.example.securitycommon.principal.JwtPrincipal;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,47 +23,53 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/events")
+@Tag(name = "Events")
 public class EventEndpoint {
     private final EventService eventService;
 
+    @Operation(summary = "Get all events page")
     @GetMapping
-    public List<EventDto> getEvents() {
-        return eventService.getEvents();
+    public Page<EventResponse> getEvents(@PageableDefault(size = 20) Pageable pageable) {
+        return eventService.getEvents(pageable);
     }
 
+    @Operation(summary = "Get users events pages")
     @GetMapping("/my")
-    public List<EventDto> getMyEvents(@AuthenticationPrincipal JwtPrincipal principal) {
+    public Page<EventResponse> getMyEvents(@AuthenticationPrincipal JwtPrincipal principal,
+                                           @PageableDefault Pageable pageable) {
         Long userId = principal.getUserId();
-        return eventService.getUserEvents(userId);
+        return eventService.getUserEvents(userId, pageable);
     }
 
+    @Operation(summary = "Get event by id")
     @GetMapping("/{id}")
-    public EventDto findEvent(@PathVariable Long id) {
+    public EventResponse findEvent(@PathVariable Long id) {
         return eventService.getEvent(id);
     }
 
+    @Operation(summary = "Create new event")
     @PostMapping
-    public ResponseEntity<EventDto> create(@RequestBody CreateEventDto dto,
-                                           @AuthenticationPrincipal JwtPrincipal principal) {
+    public ResponseEntity<EventResponse> create(@Valid @RequestBody CreateEventRequest dto,
+                                                @AuthenticationPrincipal JwtPrincipal principal) {
         Long userId = principal.getUserId();
         String username = principal.getUsername();
         return ResponseEntity.status(HttpStatus.CREATED).body(eventService.create(dto, userId, username));
     }
 
+    @Operation(summary = "Update the event")
     @PutMapping("/{id}")
-    public ResponseEntity<EventDto> update(@RequestBody CreateEventDto dto,
-                                           @PathVariable Long id,
-                                           @AuthenticationPrincipal JwtPrincipal principal) {
+    public ResponseEntity<EventResponse> update(@Valid @RequestBody CreateEventRequest dto,
+                                                @PathVariable Long id,
+                                                @AuthenticationPrincipal JwtPrincipal principal) {
         String username = principal.getUsername();
         Long userId = principal.getUserId();
         return ResponseEntity.ok().body(eventService.update(dto, userId, id, username));
     }
 
+    @Operation(summary = "Delete the event")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id,
                                        @AuthenticationPrincipal JwtPrincipal principal) {

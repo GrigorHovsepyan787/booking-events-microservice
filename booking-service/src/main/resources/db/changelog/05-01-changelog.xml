@@ -14,7 +14,32 @@
             <column name="event_id" type="BIGINT"/>
             <column name="status" type="VARCHAR(255)"/>
             <column name="created_at" type="DATETIME"/>
+            <column name="updated_at" type="DATETIME"/>
         </createTable>
+
+        <createIndex
+                tableName="bookings"
+                indexName="idx_bookings_user_id">
+            <column name="user_id"/>
+        </createIndex>
+
+        <createIndex
+                tableName="bookings"
+                indexName="idx_bookings_event_id">
+            <column name="event_id"/>
+        </createIndex>
+
+        <addUniqueConstraint
+                tableName="bookings"
+                columnNames="user_id,event_id"
+                constraintName="uk_booking_user_event"/>
+
+        <rollback>
+            <dropUniqueConstraint tableName="bookings" constraintName="uk_booking_user_event"/>
+            <dropUniqueConstraint tableName="bookings" constraintName="idx_bookings_event_id"/>
+            <dropUniqueConstraint tableName="bookings" constraintName="idx_bookings_user_id"/>
+            <dropTable tableName="bookings"/>
+        </rollback>
     </changeSet>
 
 </databaseChangeLog>

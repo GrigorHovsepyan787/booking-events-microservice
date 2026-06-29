@@ -1,13 +1,15 @@
 package org.example.notificationservice.repository;
 
 import org.example.notificationservice.entity.Notification;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
 
 
-public interface NotificationRepository extends JpaRepository<Notification, Long> {
-    List<Notification> findByUserId(Long userId);
+public interface NotificationRepository extends MongoRepository<Notification, String> {
+    Page<Notification> findByUserId(Long userId, Pageable pageable);
 
     void deleteAllByUserId(Long userId);
 }

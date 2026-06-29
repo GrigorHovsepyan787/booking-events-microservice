@@ -1,0 +1,8 @@
+spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+  mongodb:
+    uri: ${MONGO_URI}
+
+jwt:
+  secret: ${JWT_SECRET}

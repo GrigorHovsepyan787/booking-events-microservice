@@ -10,10 +10,10 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @Getter
 @Setter
-public class BookingCancelledEvent {
+public class BookingCancelledEvent extends BaseEvent {
     private Long userId;
     private String username;
     private Long eventId;

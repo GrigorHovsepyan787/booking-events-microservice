@@ -1,18 +1,19 @@
 package org.example.bookingservice.service;
 
-import org.example.bookingservice.dto.BookingDto;
+import org.example.bookingservice.dto.response.BookingResponse;
 import org.example.bookingservice.dto.request.BookingRequest;
 import org.example.common.kafka.event.BookingCreatedEvent;
 import org.example.common.kafka.event.EventDeleted;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 
 public interface BookingService {
-    List<BookingDto> findAllByUserId(Long userId);
+    Page<BookingResponse> findAllByUserId(Long userId, Pageable pageable);
 
-    BookingDto findById(Long id, Long userId);
+    BookingResponse findById(Long id, Long userId);
 
-    BookingDto create(BookingRequest request, Long userId, String username);
+    BookingResponse create(BookingRequest request, Long userId, String username);
 
     void delete(Long id, Long userId, String username);
 

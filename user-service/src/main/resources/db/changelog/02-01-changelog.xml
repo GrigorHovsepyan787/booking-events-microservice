@@ -10,8 +10,12 @@
             <column autoIncrement="true" name="id" type="BIGINT">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_user"/>
             </column>
-            <column name="username" type="VARCHAR(255)"/>
-            <column name="email" type="VARCHAR(255)"/>
+            <column name="username" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
             <column name="password" type="VARCHAR(255)"/>
             <column name="user_type" type="VARCHAR(255)"/>
             <column name="created_at"
@@ -19,6 +23,21 @@
             <column name="updated_at"
                     type="TIMESTAMP"/>
         </createTable>
+        <addUniqueConstraint
+                tableName="users"
+                columnNames="username"
+                constraintName="uk_users_username"/>
+
+        <addUniqueConstraint
+                tableName="users"
+                columnNames="email"
+                constraintName="uk_users_email"/>
+
+        <rollback>
+            <dropUniqueConstraint tableName="users" constraintName="uk_users_email"/>
+            <dropUniqueConstraint tableName="users" constraintName="uk_users_username"/>
+            <dropTable tableName="users"/>
+        </rollback>
     </changeSet>
 
 </databaseChangeLog>

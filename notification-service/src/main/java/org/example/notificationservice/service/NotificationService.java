@@ -1,14 +1,14 @@
 package org.example.notificationservice.service;
 
-import org.example.notificationservice.dto.NotificationDto;
-import org.example.notificationservice.dto.SimpleNotificationDto;
-
-import java.util.List;
+import org.example.notificationservice.dto.response.NotificationResponse;
+import org.example.notificationservice.dto.response.SimpleNotificationResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface NotificationService {
-    List<SimpleNotificationDto> findAllByUserId(Long userId);
+    Page<SimpleNotificationResponse> findAllByUserId(Long userId, Pageable pageable);
 
-    NotificationDto markAsRead(Long id, Long userId);
+    NotificationResponse markAsRead(String id, Long userId);
 
-    void delete(Long id, Long userId);
+    void delete(String id, Long userId);
 }

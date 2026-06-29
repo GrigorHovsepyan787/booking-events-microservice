@@ -1,6 +1,7 @@
 package org.example.userservice.service;
 
 import org.example.userservice.dto.request.LoginRequest;
+import org.example.userservice.dto.request.RefreshRequest;
 import org.example.userservice.dto.request.RegisterRequest;
 import org.example.userservice.dto.response.LoginResponse;
 import org.example.userservice.entity.User;
@@ -15,4 +16,8 @@ public interface UserService {
     Optional<User> findByEmail(String email);
 
     void save(RegisterRequest request);
+
+    void logout(RefreshRequest refreshRequest);
+
+    LoginResponse refresh(RefreshRequest refreshRequest);
 }

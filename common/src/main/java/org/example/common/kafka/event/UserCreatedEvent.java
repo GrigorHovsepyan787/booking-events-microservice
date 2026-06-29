@@ -7,13 +7,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @Getter
 @Setter
-public class UserCreatedEvent {
+public class UserCreatedEvent extends BaseEvent {
     private Long id;
     private String username;
     private String email;

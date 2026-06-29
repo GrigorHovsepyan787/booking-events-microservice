@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: ${BOOKING_DB_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+
+  jpa:
+    show-sql: false
+
+jwt:
+  secret: ${JWT_SECRET}

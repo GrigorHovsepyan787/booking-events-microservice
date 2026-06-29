@@ -1,18 +1,25 @@
 package org.example.eventservice.service;
 
 import org.example.common.kafka.event.BookingCreatedEvent;
-import org.example.eventservice.dto.CreateEventDto;
-import org.example.eventservice.dto.EventDto;
-
-import java.util.List;
+import org.example.eventservice.dto.response.EventResponse;
+import org.example.eventservice.dto.request.CreateEventRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface EventService {
-    List<EventDto> getEvents();
-    List<EventDto> getUserEvents(Long userId);
-    EventDto getEvent(Long eventId);
-    EventDto create(CreateEventDto dto, Long userId, String username);
-    EventDto update(CreateEventDto dto, Long userId, Long id, String username);
+    Page<EventResponse> getEvents(Pageable pageable);
+
+    Page<EventResponse> getUserEvents(Long userId, Pageable pageable);
+
+    EventResponse getEvent(Long eventId);
+
+    EventResponse create(CreateEventRequest dto, Long userId, String username);
+
+    EventResponse update(CreateEventRequest dto, Long userId, Long id, String username);
+
     void delete(Long id, Long userId, String username);
+
     void reserveSeat(BookingCreatedEvent event);
+
     void cancelReservation(Long eventId);
 }

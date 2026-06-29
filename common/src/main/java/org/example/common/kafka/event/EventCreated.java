@@ -12,10 +12,10 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @Getter
 @Setter
-public class EventCreated {
+public class EventCreated extends BaseEvent{
     private Long id;
     private Long userId;
     private String username;

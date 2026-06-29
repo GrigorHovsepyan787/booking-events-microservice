@@ -1,27 +1,37 @@
 spring:
   application:
     name: user-service
-  datasource:
-    url: jdbc:postgresql://localhost:5433/users_db
-    username: root
-    password: root
   liquibase:
     enabled: true
     change-log: classpath:db/master.xml
-  kafka:
-    bootstrap-servers: localhost:9092
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-
-
   jpa:
     hibernate:
       ddl-auto: none
     show-sql: true
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+  kafka:
+    bootstrap-servers: localhost:29092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      retries: 10
+      acks: all
+      properties:
+        delivery.timeout.ms: 120000
+        retry.backoff.ms: 100
+        enable.idempotence: true
+swagger:
+  config: true
 
-jwt:
-  secret: f/zASDH8erhhe4BY59R+c6HOeLl/4uOHyHVf9CvPrpcF5eoS2XXvVA1ElY+3j+TqfWJX+Mdrx73BAfXtigFRdw==
-  expiration: 3600000
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
 server:
   port: 8081
+  shutdown: graceful

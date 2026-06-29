@@ -14,11 +14,60 @@
             <column name="description" type="VARCHAR(255)"/>
             <column name="event_date" type="DATETIME"/>
             <column name="location" type="VARCHAR(255)"/>
-            <column name="capacity" type="INT"/>
-            <column name="seats_available" type="INT"/>
+            <column name="capacity" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="seats_available" type="INT">
+                <constraints nullable="false"/>
+            </column>
             <column name="user_id" type="BIGINT"/>
-            <column name="created_date" type="DATETIME"/>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="BIGINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
+
+        <createIndex
+                tableName="events"
+                indexName="idx_events_user_id">
+            <column name="user_id"/>
+        </createIndex>
+
+        <sql>
+            ALTER TABLE events
+                ADD CONSTRAINT chk_capacity_positive
+                    CHECK (capacity > 0);
+        </sql>
+
+        <sql>
+            ALTER TABLE events
+                ADD CONSTRAINT chk_seats_available_positive
+                    CHECK (seats_available >= 0);
+        </sql>
+
+        <sql>
+            <![CDATA[
+            ALTER TABLE events
+                ADD CONSTRAINT chk_seats_capacity
+                    CHECK (seats_available <= capacity);
+            ]]>
+        </sql>
+
+        <rollback>
+            <sql>
+                ALTER TABLE events DROP CONSTRAINT chk_seats_capacity;
+                ALTER TABLE events DROP CONSTRAINT chk_seats_available_positive;
+                ALTER TABLE events DROP CONSTRAINT chk_capacity_positive;
+            </sql>
+
+            <dropUniqueConstraint tableName="events" constraintName="idx_events_user_id"/>
+            <dropTable tableName="events"/>
+        </rollback>
     </changeSet>
 
 </databaseChangeLog>
