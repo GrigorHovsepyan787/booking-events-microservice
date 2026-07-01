@@ -1,6 +1,7 @@
 package org.example.eventservice.endpoint;
 
 import org.example.eventservice.dto.request.CreateEventRequest;
+import org.example.eventservice.dto.response.EventPageResponse;
 import org.example.eventservice.dto.response.EventResponse;
 import org.example.eventservice.service.EventService;
 import org.example.securitycommon.parser.JwtParser;
@@ -10,9 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.cache.CacheManager;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -86,9 +84,17 @@ class EventEndpointTest {
     void getEvents_HappyPath_ReturnsOkWithPage() throws Exception {
         EventResponse event1 = createMockEventResponse(1L, "Java Conference");
         EventResponse event2 = createMockEventResponse(2L, "Spring Boot Workshop");
-        Page<EventResponse> page = new PageImpl<>(List.of(event1, event2), PageRequest.of(0, 20), 2);
 
-        when(eventService.getEvents(any(Pageable.class))).thenReturn(page);
+        EventPageResponse response = EventPageResponse.builder()
+                .content(List.of(event1, event2))
+                .number(0)
+                .size(20)
+                .totalElements(2)
+                .totalPages(1)
+                .build();
+
+        when(eventService.getEvents(any(Pageable.class)))
+                .thenReturn(response);
 
         mockMvc.perform(get("/api/events")
                         .with(mockAuthentication()))
@@ -97,23 +103,39 @@ class EventEndpointTest {
                 .andExpect(jsonPath("$.content[0].id").value(1))
                 .andExpect(jsonPath("$.content[0].title").value("Java Conference"))
                 .andExpect(jsonPath("$.content[1].id").value(2))
-                .andExpect(jsonPath("$.content[1].title").value("Spring Boot Workshop"));
+                .andExpect(jsonPath("$.content[1].title").value("Spring Boot Workshop"))
+                .andExpect(jsonPath("$.number").value(0))
+                .andExpect(jsonPath("$.size").value(20))
+                .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.totalPages").value(1));
     }
 
     @Test
     @DisplayName("GET /api/events/my - Happy Path - Should return paginated user's events")
     void getMyEvents_HappyPath_ReturnsOkWithPage() throws Exception {
         EventResponse myEvent = createMockEventResponse(10L, "My Personal Event");
-        Page<EventResponse> page = new PageImpl<>(List.of(myEvent), PageRequest.of(0, 10), 1);
 
-        when(eventService.getUserEvents(eq(TEST_USER_ID), any(Pageable.class))).thenReturn(page);
+        EventPageResponse response = EventPageResponse.builder()
+                .content(List.of(myEvent))
+                .number(0)
+                .size(10)
+                .totalElements(1)
+                .totalPages(1)
+                .build();
+
+        when(eventService.getUserEvents(eq(TEST_USER_ID), any(Pageable.class)))
+                .thenReturn(response);
 
         mockMvc.perform(get("/api/events/my")
                         .with(mockAuthentication()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.content[0].id").value(10))
-                .andExpect(jsonPath("$.content[0].title").value("My Personal Event"));
+                .andExpect(jsonPath("$.content[0].title").value("My Personal Event"))
+                .andExpect(jsonPath("$.number").value(0))
+                .andExpect(jsonPath("$.size").value(10))
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.totalPages").value(1));
     }
 
     @Test
@@ -200,9 +222,8 @@ class EventEndpointTest {
     @Test
     @DisplayName("POST /api/events - Validation Failure - Should return 400 Bad Request when title is blank")
     void create_InvalidRequest_Returns400BadRequest() throws Exception {
-        // Создаем некорректный DTO (например, с пустым заголовок, если стоит @NotBlank)
         CreateEventRequest invalidRequest = new CreateEventRequest(
-                "", // Пустой title спровоцирует ошибку валидации @Valid
+                "",
                 "Some description",
                 LocalDateTime.now().plusDays(1),
                 "Location",

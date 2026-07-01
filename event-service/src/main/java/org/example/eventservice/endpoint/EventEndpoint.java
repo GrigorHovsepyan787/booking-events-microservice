@@ -4,11 +4,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.eventservice.dto.response.EventPageResponse;
 import org.example.eventservice.dto.response.EventResponse;
 import org.example.eventservice.dto.request.CreateEventRequest;
 import org.example.eventservice.service.EventService;
 import org.example.securitycommon.principal.JwtPrincipal;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -32,13 +32,13 @@ public class EventEndpoint {
 
     @Operation(summary = "Get all events page")
     @GetMapping
-    public Page<EventResponse> getEvents(@PageableDefault(size = 20) Pageable pageable) {
+    public EventPageResponse getEvents(@PageableDefault(size = 20) Pageable pageable) {
         return eventService.getEvents(pageable);
     }
 
     @Operation(summary = "Get users events pages")
     @GetMapping("/my")
-    public Page<EventResponse> getMyEvents(@AuthenticationPrincipal JwtPrincipal principal,
+    public EventPageResponse getMyEvents(@AuthenticationPrincipal JwtPrincipal principal,
                                            @PageableDefault Pageable pageable) {
         Long userId = principal.getUserId();
         return eventService.getUserEvents(userId, pageable);

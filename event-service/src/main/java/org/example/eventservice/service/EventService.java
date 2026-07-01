@@ -1,15 +1,15 @@
 package org.example.eventservice.service;
 
 import org.example.common.kafka.event.BookingCreatedEvent;
+import org.example.eventservice.dto.response.EventPageResponse;
 import org.example.eventservice.dto.response.EventResponse;
 import org.example.eventservice.dto.request.CreateEventRequest;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface EventService {
-    Page<EventResponse> getEvents(Pageable pageable);
+    EventPageResponse getEvents(Pageable pageable);
 
-    Page<EventResponse> getUserEvents(Long userId, Pageable pageable);
+    EventPageResponse getUserEvents(Long userId, Pageable pageable);
 
     EventResponse getEvent(Long eventId);
 

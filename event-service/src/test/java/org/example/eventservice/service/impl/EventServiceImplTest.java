@@ -6,6 +6,7 @@ import org.example.common.kafka.event.EventCreated;
 import org.example.common.kafka.event.EventDeleted;
 import org.example.common.kafka.event.EventUpdated;
 import org.example.eventservice.dto.request.CreateEventRequest;
+import org.example.eventservice.dto.response.EventPageResponse;
 import org.example.eventservice.dto.response.EventResponse;
 import org.example.eventservice.entity.Event;
 import org.example.eventservice.kafka.producer.EventProducer;
@@ -107,7 +108,7 @@ class EventServiceImplTest {
         when(eventRepository.findAll(pageable)).thenReturn(eventPage);
         when(eventMapper.toDto(testEvent)).thenReturn(eventResponse);
 
-        Page<EventResponse> result = eventService.getEvents(pageable);
+        EventPageResponse result = eventService.getEvents(pageable);
 
         assertThat(result).isNotNull();
         assertThat(result.getTotalElements()).isEqualTo(1);
@@ -124,7 +125,7 @@ class EventServiceImplTest {
 
         when(eventRepository.findAll(pageable)).thenReturn(emptyPage);
 
-        Page<EventResponse> result = eventService.getEvents(pageable);
+        EventPageResponse result = eventService.getEvents(pageable);
 
         assertThat(result).isNotNull();
         assertThat(result.getTotalElements()).isZero();
@@ -145,7 +146,7 @@ class EventServiceImplTest {
         when(eventRepository.findByUserId(10L, pageable)).thenReturn(userEventsPage);
         when(eventMapper.toDto(testEvent)).thenReturn(eventResponse);
 
-        Page<EventResponse> result = eventService.getUserEvents(10L, pageable);
+        EventPageResponse result = eventService.getUserEvents(10L, pageable);
 
         assertThat(result).isNotNull();
         assertThat(result.getTotalElements()).isEqualTo(1);
@@ -154,6 +155,7 @@ class EventServiceImplTest {
 
         verify(eventRepository).findByUserId(10L, pageable);
         verify(eventMapper).toDto(testEvent);
+        verifyNoInteractions(eventProducer);
     }
 
     @Test
@@ -162,14 +164,15 @@ class EventServiceImplTest {
 
         when(eventRepository.findByUserId(10L, pageable)).thenReturn(emptyPage);
 
-        Page<EventResponse> result = eventService.getUserEvents(10L, pageable);
+        EventPageResponse result = eventService.getUserEvents(10L, pageable);
 
         assertThat(result).isNotNull();
         assertThat(result.getTotalElements()).isZero();
         assertThat(result.getContent()).isEmpty();
 
         verify(eventRepository).findByUserId(10L, pageable);
-        verifyNoInteractions(eventMapper, eventProducer);
+        verifyNoInteractions(eventProducer);
+        verify(eventMapper, never()).toDto(any());
     }
 
     @Test
@@ -178,13 +181,15 @@ class EventServiceImplTest {
 
         when(eventRepository.findByUserId(eq(null), any(Pageable.class))).thenReturn(emptyPage);
 
-        Page<EventResponse> result = eventService.getUserEvents(null, pageable);
+        EventPageResponse result = eventService.getUserEvents(null, pageable);
 
         assertThat(result).isNotNull();
         assertThat(result.getTotalElements()).isZero();
+        assertThat(result.getContent()).isEmpty();
 
         verify(eventRepository).findByUserId(eq(null), any(Pageable.class));
-        verifyNoInteractions(eventMapper, eventProducer);
+        verifyNoInteractions(eventProducer);
+        verify(eventMapper, never()).toDto(any());
     }
 
     @Test
@@ -193,7 +198,7 @@ class EventServiceImplTest {
 
         when(eventRepository.findByUserId(-1L, pageable)).thenReturn(emptyPage);
 
-        Page<EventResponse> result = eventService.getUserEvents(-1L, pageable);
+        EventPageResponse result = eventService.getUserEvents(-1L, pageable);
 
         assertThat(result).isNotNull();
         assertThat(result.getContent()).isEmpty();
@@ -206,10 +211,11 @@ class EventServiceImplTest {
 
         when(eventRepository.findByUserId(0L, pageable)).thenReturn(emptyPage);
 
-        Page<EventResponse> result = eventService.getUserEvents(0L, pageable);
+        EventPageResponse result = eventService.getUserEvents(0L, pageable);
 
         assertThat(result).isNotNull();
         assertThat(result.getContent()).isEmpty();
+
         verify(eventRepository).findByUserId(0L, pageable);
     }
 
@@ -1118,18 +1124,6 @@ class EventServiceImplTest {
     }
 
     // ==================== Additional Edge Case Tests ====================
-
-    @Test
-    void getEvents_shouldHandleVeryLargePageNumber() {
-        Page<Event> emptyPage = new PageImpl<>(List.of());
-        when(eventRepository.findAll(pageable)).thenReturn(emptyPage);
-
-        Page<EventResponse> result = eventService.getEvents(pageable);
-
-        assertThat(result).isNotNull();
-        assertThat(result.getContent()).isEmpty();
-        verify(eventRepository).findAll(pageable);
-    }
 
     @Test
     void create_shouldHandleEventWithNullDescription() {

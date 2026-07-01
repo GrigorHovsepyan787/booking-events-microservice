@@ -7,6 +7,7 @@ import org.example.common.kafka.event.BookingCreatedEvent;
 import org.example.common.kafka.event.EventCreated;
 import org.example.common.kafka.event.EventDeleted;
 import org.example.common.kafka.event.EventUpdated;
+import org.example.eventservice.dto.response.EventPageResponse;
 import org.example.eventservice.dto.response.EventResponse;
 import org.example.eventservice.dto.request.CreateEventRequest;
 import org.example.eventservice.entity.Event;
@@ -33,26 +34,25 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Cacheable(value = "events")
-    public Page<EventResponse> getEvents(Pageable pageable) {
+    public EventPageResponse getEvents(Pageable pageable) {
         log.info("Request to fetch all events");
 
         Page<Event> events = eventRepository.findAll(pageable);
 
         log.debug("Found {} events in total", events.getTotalElements());
-
-        return events.map(eventMapper::toDto);
+        return toPageResponse(events.map(eventMapper::toDto));
     }
 
     @Override
     @Cacheable(value = "user-events", key = "#userId + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
-    public Page<EventResponse> getUserEvents(Long userId, Pageable pageable) {
+    public EventPageResponse getUserEvents(Long userId, Pageable pageable) {
         log.info("Request to fetch events for user ID: {}", userId);
 
         Page<Event> userEvents = eventRepository.findByUserId(userId, pageable);
 
         log.debug("Found {} events for user ID: {}", userEvents.getTotalElements(), userId);
 
-        return userEvents.map(eventMapper::toDto);
+        return toPageResponse(userEvents.map(eventMapper::toDto));
     }
 
     @Override
@@ -86,6 +86,7 @@ public class EventServiceImpl implements EventService {
 
         eventProducer.sendEventCreated(EventCreated.builder()
                 .title(saved.getTitle())
+                .userId(userId)
                 .username(username)
                 .eventDate(saved.getEventDate())
                 .location(saved.getLocation())
@@ -200,5 +201,15 @@ public class EventServiceImpl implements EventService {
             throw new AccessDeniedException(
                     "Not allowed to modify this event");
         }
+    }
+
+    private EventPageResponse toPageResponse(Page<EventResponse> page) {
+        return EventPageResponse.builder()
+                .content(page.getContent())
+                .number(page.getNumber())
+                .size(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .build();
     }
 }
